@@ -5,4 +5,4 @@ This is very useful when you want to let the user fill in a template of some
 sorts.
 
 Demo:
-![][demo.gif?raw=true "Demo"]
+![Demo](demo.gif)
