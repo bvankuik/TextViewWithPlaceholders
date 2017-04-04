@@ -38,11 +38,12 @@ class ViewController: UIViewController {
     
     @IBAction func previousButtonTapped(_ sender: UIButton) {
         print("previous")
+        self.selectPlaceholder(in: self.ranges.reversed(), with: smallerThan)
     }
     
     @IBAction func nextButtonTapped(_ sender: UIButton) {
         print("next")
-        self.selectNextPlaceholder()
+        self.selectPlaceholder(in: self.ranges, with: greaterThan)
     }
     
     // MARK: - Private functions
@@ -54,34 +55,38 @@ class ViewController: UIViewController {
         }
 
         self.ranges = text.allRanges(of: self.placeholder)
-        print("Found \(self.ranges.count) ranges")
     }
-    
-    
-    private func selectNextPlaceholder() {
+
+    private func smallerThan(operandA: Int, operandB: Int) -> Bool {
+        return operandA < operandB
+    }
+
+    private func greaterThan(operandA: Int, operandB: Int) -> Bool {
+        return operandA > operandB
+    }
+
+    private func selectPlaceholder(in ranges: [Range<String.Index>], with closure: (Int, Int) -> Bool) {
         guard let text = self.textView.text else {
             return
         }
-        
+
         self.textView.becomeFirstResponder()
 
         self.updatePlaceholderRanges()
-        
+
         // Find current cursor position
         guard let currentlySelectedRange = self.textView.selectedTextRange else {
             print("Couldn't find current range")
             return
         }
-            
+
         var cursorPosition = self.textView.offset(from: self.textView.beginningOfDocument, to: currentlySelectedRange.start)
-        print("Current position: \(cursorPosition)")
-        
-        for range in self.ranges {
+
+        for range in ranges {
             let rangeStart = text.distance(from: text.startIndex, to: range.lowerBound)
             let rangeEnd = text.distance(from: text.startIndex, to: range.upperBound)
-            print("Range: \(range)")
 
-            if rangeStart > cursorPosition {
+            if closure(rangeStart, cursorPosition) {
                 // Convert to UITextPosition, and set new selection
                 let textPositionStart = self.textView.position(from: self.textView.beginningOfDocument, offset: rangeStart)
                 let textPositionEnd = self.textView.position(from: self.textView.beginningOfDocument, offset: rangeEnd)
@@ -94,7 +99,7 @@ class ViewController: UIViewController {
             }
         }
     }
-    
+
     // MARK: - View cycle
 
     override func viewDidLoad() {
