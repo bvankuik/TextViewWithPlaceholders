@@ -32,31 +32,29 @@ class ViewController: UIViewController {
     @IBOutlet weak var textView: UITextView!
     
     let placeholder = "{....}"
-    var ranges = [Range<String.Index>]()
-    
+
     // MARK: - Actions
     
     @IBAction func previousButtonTapped(_ sender: UIButton) {
-        print("previous")
-        self.selectPlaceholder(in: self.ranges.reversed(), with: smallerThan)
+        guard let text = self.textView.text else {
+            return
+        }
+
+        let ranges = text.allRanges(of: self.placeholder)
+        self.selectPlaceholder(in: ranges.reversed(), with: smallerThan)
     }
     
     @IBAction func nextButtonTapped(_ sender: UIButton) {
-        print("next")
-        self.selectPlaceholder(in: self.ranges, with: greaterThan)
+        guard let text = self.textView.text else {
+            return
+        }
+
+        let ranges = text.allRanges(of: self.placeholder)
+        self.selectPlaceholder(in: ranges, with: greaterThan)
     }
     
     // MARK: - Private functions
     
-    private func updatePlaceholderRanges() {
-        guard let text = self.textView.text else {
-            self.ranges = []
-            return
-        }
-
-        self.ranges = text.allRanges(of: self.placeholder)
-    }
-
     private func smallerThan(operandA: Int, operandB: Int) -> Bool {
         return operandA < operandB
     }
@@ -72,11 +70,8 @@ class ViewController: UIViewController {
 
         self.textView.becomeFirstResponder()
 
-        self.updatePlaceholderRanges()
-
         // Find current cursor position
         guard let currentlySelectedRange = self.textView.selectedTextRange else {
-            print("Couldn't find current range")
             return
         }
 
